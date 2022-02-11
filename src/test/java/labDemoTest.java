@@ -203,7 +203,18 @@ public class LabDemoTest {
     }
 
 
-    // This tes has to fail
+    /**
+     * Tab 4 (Folder):
+     *
+     * General:
+     *   * Dragging an “app” (grey icon) to the folder (red icon) should move it to the
+     *     folder (“app” should disappear from the scene).
+     * Functionality to test:
+     *   * Folders can take a maximum of two “apps”. [“test_folder”]
+     *
+     * This test should fail, as the folder takes 3 "apps" instead of the maximum of 2.
+     */
+
     @Test
     void test_folder() throws InterruptedException, FindFailed {
 
@@ -213,7 +224,6 @@ public class LabDemoTest {
 
         Pattern redFolder = new Pattern("redFolder");
         Pattern appFolder = new Pattern("app");
-        Pattern reg = new Pattern("region");
         Pattern folderTab = new Pattern("folderTab");
 
         screen.find(folderTab).click();
