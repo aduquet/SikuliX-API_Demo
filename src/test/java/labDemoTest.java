@@ -1,38 +1,52 @@
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sikuli.script.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class labDemoTest {
+public class LabDemoTest {
 
-    Process p;
+    private static Process process;
+    private static final Screen screen = LabDemo.getMyScreen();
 
     @BeforeEach
     void setup() throws IOException, InterruptedException {
+        process = LabDemo.openSUT();
         TimeUnit.SECONDS.sleep(2);
-        p = labDemo.openSUT();
+        screen.mouseMove();
     }
 
     @AfterEach
     void teardown() throws InterruptedException {
-        p.destroy();
+        process.destroy();
         TimeUnit.SECONDS.sleep(5);
     }
+
+    /**
+     * Tab 1 (Buttons):
+     * General:
+     *   * The tab consists of 3 buttons (green, red, pink).
+     * Functionality to test:
+     *   * After clicking each button, a text will appear below the buttons.
+     *     For green button it will be “Green button was clicked!”,
+     *     red -> “Red button was clicked!”
+     *     and pink -> “Pink button was clicked!”. [“test_buttons_text”]
+     *
+     * This test should pass.
+     */
 
     @Test
     void test_button_text() throws FindFailed {
 
-        labDemo.getMyScreen().mouseMove();
+        // Define the location, where the images will be searched for
         ImagePath.setBundlePath("./src/main/resources/test_button");
+
         Pattern green = new Pattern("green");
         Pattern red = new Pattern("red");
         Pattern pink = new Pattern("pink");
@@ -40,10 +54,11 @@ public class labDemoTest {
 
         List<String> correctLines = Arrays.asList("Green button was clicked!", "Red button was clicked!", "Pink button was clicked!");
         List<Pattern> imgs = Arrays.asList(green, red, pink);
+
         int count = 0;
         for (Pattern i : imgs) {
-            labDemo.getMyScreen().wait(i.similar(0.9), 2).click();
-            String text = labDemo.getMyScreen().find(regionText).text();
+            screen.wait(i.similar(0.9), 2).click();
+            String text = screen.find(regionText).text();
             System.out.println(text);
             System.out.println(correctLines.get(count));
             Assertions.assertEquals(correctLines.get(count), text);
@@ -52,10 +67,21 @@ public class labDemoTest {
 
     }
 
+
+    /**
+     * Tab 1 (Buttons):
+     *
+     * General:
+     *   * The tab consists of 3 buttons (green, red, pink).
+     * Functionality to test:
+     *   * All buttons should stay unchanged after clicking. (implicit task). [“test_buttons_unchanged”]
+     *
+     * This test should fail, because the pink button disappears, although it should not.
+     */
+
     @Test
     void test_button_unchanged() throws FindFailed {
 
-        labDemo.getMyScreen().mouseMove();
         ImagePath.setBundlePath("./src/main/resources/test_button");
 
         Pattern green = new Pattern("green");
@@ -64,56 +90,83 @@ public class labDemoTest {
 
         List<Pattern> imgs = Arrays.asList(green, red, pink);
         Pattern threeButtons = new Pattern("threeButtons");
+
         for (Pattern i : imgs) {
-            labDemo.getMyScreen().wait(i.similar(0.9), 2).click();
-            System.out.println(labDemo.getMyScreen().exists(threeButtons.exact(), 2));
-            Assertions.assertNotNull(labDemo.getMyScreen().exists(threeButtons.exact(), 2));
+            screen.wait(i.similar(0.9), 2).click();
+            System.out.println(screen.exists(threeButtons.exact(), 2));
+            Assertions.assertNotNull(screen.exists(threeButtons.exact(), 2));
         }
     }
+
+
+    /**
+     * Tab 2 (Editor):
+     *
+     * General:
+     *   * The tab consists of an expandable pane (it is randomly closed or open when opening the app),
+     *     that includes a text editor.
+     * Functionality to test:
+     *   * After closing and opening the pane, text in the text editor must stay the same. [“test_editor”]
+     *
+     * This test should pass.
+     */
 
     @Test
     void test_editor() throws FindFailed {
 
-        labDemo.getMyScreen().mouseMove();
+        // Specify the folder where the images for the test are located
         ImagePath.setBundlePath("./src/main/resources/test_editor");
 
-        File directoryPath = new File("C:/Users/duquet/Documents/SWT22/Lab7-Sikuli/LabSikuliX-Demo/src/main/resources/test_editor");
-        File[] imgList = directoryPath.listFiles();
+        // Find text "Editor" and click on it
+        screen.findText("Editor").click();
 
-        for (File file : imgList != null ? imgList : new File[0]) {
+        // Create patterns for pane closed and pane open
+        Pattern firstPaneClosed = new Pattern("firstPaneClosed");
+        Pattern firstPaneOpen = new Pattern("firstPaneOpen");
 
-            if (file.getName().equals("6-text.png")) {
-                break;
-            }
-
-            Pattern img = new Pattern(file.getPath());
-            labDemo.getMyScreen().wait(img.similar(0.9), 2).click();
-            labDemo.getMyScreen().mouseUp();
-
-            if (file.getName().equals("3-text.png")) {
-                labDemo.getMyScreen().write("Tere! Hi! Hola!" + Key.ENTER + "Go little Rock Star!");
-            }
+        // Determine whether the tab is closed or open
+        if (screen.exists(firstPaneClosed.similar(0.8)) != null) {
+            // If the pane was closed then click on it to open the pane
+            // Wait for Sikuli to find the place similar to the picture of closed pane and click on it to open it
+            screen.wait(firstPaneClosed.similar(0.8), 2).click();
         }
 
-        for (File file : imgList != null ? imgList : new File[0]) {
-            if (file.getName().equals("3-text.png")) {
-                Pattern text = new Pattern("6-text.png");
-                System.out.println(labDemo.getMyScreen().exists(text.exact(), 2));
-                Assertions.assertNotNull(labDemo.getMyScreen().exists(text.exact(), 2));
-                break;
-            }
-            Pattern img = new Pattern(file.getPath());
-            labDemo.getMyScreen().wait(img, 2).click();
-        }
+        // Wait for Sikuli to find the text box and click on it to activate the writing functionality
+        screen.wait(new Pattern("textField").similar(0.9), 2).click();
+        // Write text to the text box
+        screen.write("Tere! Hi! Hola!" + Key.ENTER + "Go little Rock Star!");
+        // Wait for Sikuli to find the place similar to the picture of pane named "First" and click on it to close
+        screen.wait(firstPaneOpen.similar(0.8), 2).click();
+        // Click on the same place on the screen to open the tab again
+        screen.click();
+
+        // Assert if the written lines are present on the screen
+        Assertions.assertNotNull(screen.existsText("Tere! Hi! Hola!", 2));
+        Assertions.assertNotNull(screen.existsText("Go little Rock Star!", 2));
+
     }
+
+
+    /**
+     * Tab 3 (Copyable):
+     *
+     * General:
+     *   * The tab consists of 5 words.
+     *   * Colors of the words are generated randomly every time you run the app.
+     * Functionality to test:
+     *   * Each word should be copyable. [“test_copyable”]
+     *
+     * This test should fail, because two words are not copiable.
+     */
 
     @Test
     void test_copyable() throws InterruptedException, FindFailed {
 
-        labDemo.getMyScreen().mouseMove();
+        // Specify the folder where the images for the test are located
         ImagePath.setBundlePath("./src/main/resources/test_copiable");
 
-        Pattern copiableTab = new Pattern("copiable_tab");
+        // Find text "Copiable" and click on it
+        screen.findText("Copiable").click();
         Pattern reg = new Pattern("region");
         Pattern copy = new Pattern("copy").similar(0.7);
 
@@ -121,16 +174,15 @@ public class labDemoTest {
 
         TimeUnit.SECONDS.sleep(2);
 
-        int x = labDemo.getMyScreen().find(reg).getX();
-        int y = labDemo.getMyScreen().find(reg).getY();
-        int w = labDemo.getMyScreen().find(reg).getW();
-        int h = labDemo.getMyScreen().find(reg).getH();
+        int x = screen.find(reg).getX();
+        int y = screen.find(reg).getY();
+        int w = screen.find(reg).getW();
+        int h = screen.find(reg).getH();
 
-        labDemo.getMyScreen().wait(copiableTab.similar(0.9), 2).click();
         TimeUnit.SECONDS.sleep(1);
         List<String> word = Arrays.asList("First", "Second", "Third", "Forth", "Fifth");
         List<Integer> pos = new ArrayList<>();
-        List<Match> listW = labDemo.getMyScreen().newRegion(x, y, w, h).findLines();
+        List<Match> listW = screen.newRegion(x, y, w, h).findLines();
 
         for (Match m : listW) {
             if (word.contains(m.getText())) {
@@ -139,23 +191,24 @@ public class labDemoTest {
         }
 
         for (int i : pos) {
-            labDemo.getMyScreen().newRegion(x, y, w, h).doubleClick(listW.get(i));
+            screen.newRegion(x, y, w, h).doubleClick(listW.get(i));
             TimeUnit.SECONDS.sleep(2);
-            labDemo.getMyScreen().newRegion(x, y, w, h).rightClick(listW.get(i));
+            screen.newRegion(x, y, w, h).rightClick(listW.get(i));
             TimeUnit.SECONDS.sleep(2);
-            Assertions.assertNotNull(labDemo.getMyScreen().newRegion(x, y, w, h).exists(copy, 2));
-            labDemo.getMyScreen().mouseMove();
-            labDemo.getMyScreen().click();
+            Assertions.assertNotNull(screen.newRegion(x, y, w, h).exists(copy, 2));
+            screen.mouseMove();
+            screen.click();
             TimeUnit.SECONDS.sleep(2);
         }
     }
 
+
+    // This tes has to fail
     @Test
     void test_folder() throws InterruptedException, FindFailed {
 
         TimeUnit.SECONDS.sleep(5);
 
-        labDemo.getMyScreen().mouseMove();
         ImagePath.setBundlePath("./src/main/resources/test_folder");
 
         Pattern redFolder = new Pattern("redFolder");
@@ -163,23 +216,15 @@ public class labDemoTest {
         Pattern reg = new Pattern("region");
         Pattern folderTab = new Pattern("folderTab");
 
-        labDemo.getMyScreen().find(folderTab).click();
-        TimeUnit.SECONDS.sleep(2);
-        int x = labDemo.getMyScreen().find(reg).getX();
-        int y = labDemo.getMyScreen().find(reg).getY();
-        int w = labDemo.getMyScreen().find(reg).getW();
-        int h = labDemo.getMyScreen().find(reg).getH();
-        TimeUnit.SECONDS.sleep(2);
-        List<Match> listW = labDemo.getMyScreen().newRegion(x, y, w, h).findAllList(appFolder);
-        Match redFoldPos = labDemo.getMyScreen().newRegion(x, y, w, h).find(redFolder);
-        TimeUnit.SECONDS.sleep(2);
+        screen.find(folderTab).click();
+
+        List<Match> listW = screen.findAllList(appFolder);
+        Match redFoldPos = screen.find(redFolder);
         for (Match m : listW) {
-            labDemo.getMyScreen().newRegion(x, y, w, h).dragDrop(m, redFoldPos);
-            TimeUnit.SECONDS.sleep(1);
+            screen.dragDrop(m, redFoldPos);
         }
-//        List<Match> listW2 = labDemo.getMyScreen().newRegion(x, y, w, h).findAllList("app");
-//        System.out.print(listW2.size());
-        Assertions.assertNull(labDemo.getMyScreen().newRegion(x, y, w, h).exists(appFolder));
+
+        Assertions.assertNull(screen.exists(appFolder));
     }
 
     @Test
@@ -187,35 +232,34 @@ public class labDemoTest {
 
         TimeUnit.SECONDS.sleep(5);
 
-        labDemo.getMyScreen().mouseMove();
         ImagePath.setBundlePath("./src/main/resources/test_resizer");
 
-        Pattern resizerTab = new Pattern("resizerTab");
         Pattern redbar = new Pattern("redbar");
         Pattern desktext = new Pattern("desk_table_mobile");
         Pattern folder = new Pattern("folder");
 
-        labDemo.getMyScreen().find(resizerTab).click();
+        // Find text "Resizer" and click on it
+        screen.findText("Resizer").click();
 
-        int x = labDemo.getMyScreen().find(desktext).getX();
-        int y = labDemo.getMyScreen().find(desktext).getY();
-        int w = labDemo.getMyScreen().find(desktext).getW();
-        int h = labDemo.getMyScreen().find(desktext).getH();
+        int x = screen.find(desktext).getX();
+        int y = screen.find(desktext).getY();
+        int w = screen.find(desktext).getW();
+        int h = screen.find(desktext).getH();
 
         List<Match> listW = new ArrayList<>();
 
-        listW.add(labDemo.getMyScreen().newRegion(x, y, w, h).findText("Desktop"));
-        listW.add(labDemo.getMyScreen().newRegion(x, y, w, h).findText("Tablet"));
-        listW.add(labDemo.getMyScreen().newRegion(x, y, w, h).findText("Mobile"));
+        listW.add(screen.newRegion(x, y, w, h).findText("Desktop"));
+        listW.add(screen.newRegion(x, y, w, h).findText("Tablet"));
+        listW.add(screen.newRegion(x, y, w, h).findText("Mobile"));
 
         for (Match m : listW) {
             System.out.println(m.getText());
             TimeUnit.SECONDS.sleep(1);
-            labDemo.getMyScreen().newRegion(x, y, w, h).click(m);
+            screen.newRegion(x, y, w, h).click(m);
             TimeUnit.SECONDS.sleep(2);
-            List<Match> border = labDemo.getMyScreen().findAllList(redbar);
+            List<Match> border = screen.findAllList(redbar);
             TimeUnit.SECONDS.sleep(2);
-            //labDemo.getMyScreen().newRegion(border.get(0).getX() + border.get(0).getW(), border.get(0).getY(),border.get(1).getX() - border.get(0).getX(),border.get(0).getH()).highlight();
+            //screen.newRegion(border.get(0).getX() + border.get(0).getW(), border.get(0).getY(),border.get(1).getX() - border.get(0).getX(),border.get(0).getH()).highlight();
             Region s = new Screen().newRegion(border.get(0).getX() + border.get(0).getW(), border.get(0).getY(), border.get(1).getX() - border.get(0).getX(), border.get(0).getH());
             TimeUnit.SECONDS.sleep(4);
             //List<Match> folderlist = s.highlight(1).findAllList(folder);
