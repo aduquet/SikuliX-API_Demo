@@ -10,6 +10,7 @@ public class LabDemo {
     // useful when you have multiple screens
     // (e.g. an external monitor in addition to the laptop monitor)
     private static final Screen myScreen = new Screen(Screen.getPrimaryId());
+    //private static final Screen myScreen = new Screen(2);
 
     public static Screen getMyScreen() {
         return myScreen;
