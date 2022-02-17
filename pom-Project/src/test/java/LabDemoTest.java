@@ -3,7 +3,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sikuli.script.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -219,7 +218,7 @@ public class LabDemoTest {
      * Functionality to test:
      *   * Folders can take a maximum of two “apps”. [“test_folder”]
      *
-     * This test should fail, as the folder takes 3 "apps" instead of the maximum of 2.
+     * This test should pass.
      */
 
     @Test
@@ -244,6 +243,19 @@ public class LabDemoTest {
         Assertions.assertNull(screen.exists(appFolder));
 
     }
+
+    /**
+     * Tab 5 (Resizer):
+     *
+     * General:
+     *   * The tab consists of a “screen” with red borders. Borders are randomized
+     *   each time you “resize” the screen (click on the “Desktop”/”Tablet”/”Mobile” button)
+     * Functionality to test:
+     *   * After “resizing” the screen folder buttons should stay in the confinements of
+     *     the borders. [“test_resizer”]
+     *
+     * This test should pass.
+     */
 
     @Test
     void test_resizer() throws InterruptedException, FindFailed {
@@ -288,6 +300,5 @@ public class LabDemoTest {
 
             TimeUnit.SECONDS.sleep(1);
         }
-
     }
 }
