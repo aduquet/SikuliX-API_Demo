@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class LabDemoTest {
+public class labDemoTest {
 
     private static Process process;
     private static final Screen screen = LabDemo.getMyScreen();
@@ -209,7 +209,6 @@ public class LabDemoTest {
             TimeUnit.SECONDS.sleep(2);
         }
     }
-
 
     /**
      * Tab 4 (Folder):
