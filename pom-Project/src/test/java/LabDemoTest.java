@@ -4,9 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sikuli.script.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class LabDemoTest {
@@ -155,8 +153,8 @@ public class LabDemoTest {
         screen.click();
 
         // Assert if the written lines are present on the screen
-        Assertions.assertNotNull(screen.existsText("Tere! Hi! Hola!", 2));
-        Assertions.assertNotNull(screen.existsText("Go little Rock Star!", 2));
+        Assertions.assertNotNull(screen.existsText("Tere! Hi! Hola!", 5));
+        Assertions.assertNotNull(screen.existsText("Go little Rock Star!", 5));
     }
 
     /**
@@ -269,60 +267,57 @@ public class LabDemoTest {
      * This test should pass.
      */
 
-/*    @Test
-    void test_resizer() throws InterruptedException, FindFailed {
+    @Test
+    void test_resizer() throws FindFailed {
 
         ImagePath.setBundlePath("./src/main/resources/test_resizer");
 
-        Pattern redbar = new Pattern("redbar");
-        Pattern desktext = new Pattern("desk_table_mobile");
+        Pattern redbar = new Pattern("redbar").similar(0.7);
+        Pattern region = new Pattern("region").similar(0.5);
         Pattern folder = new Pattern("folder");
-        Pattern desktop = new Pattern("desktop").similar(0.7);
-        Pattern mobile = new Pattern("mobile").similar(0.7);
-        Pattern tablet = new Pattern("table").similar(0.7);
-        Pattern region = new Pattern("region").similar(0.7);
 
-        screen.find(region).highlight(1);
-        List<Pattern> images = Arrays.asList(desktop, mobile, tablet);
         // Find text "Resizer" and click on it
         screen.findText("Resizer").click();
-        screen.wait(desktop.similar(0.7), 2).click();
-        //screen.find("desktop").click();
-        //screen.find("mobile").click();
-        //screen.find("tablet").click();
 
-//        int x = screen.find(desktext).getX();
-//        int y = screen.find(desktext).getY();
-//        int w = screen.find(desktext).getW();
-//        int h = screen.find(desktext).getH();
-        List<Match> listW = new ArrayList<>();
+        //screen.find(region).highlight(2);
+        int x = screen.find(region).getX();
+        int y = screen.find(region).getY();
+        int w = screen.find(region).getW();
+        int h = screen.find(region).getH();
 
-        listW.add(screen.findText("Desktop"));
-        listW.add(screen.findText("Tablet"));
-        listW.add(screen.findText("Mobile"));
+        Region reg = new Screen().newRegion(x, y, w, h);
 
-*//*        listW.add(screen.newRegion(x, y, w, h).findText("Desktop"));
-        listW.add(screen.newRegion(x, y, w, h).findText("Tablet"));
-        listW.add(screen.newRegion(x, y, w, h).findText("Mobile"));*//*
+        List<Match> listW = reg.findWords();
+        List<String> correctLines = Arrays.asList("Desktop", "Tablet", "Mobile");
+        List<Match> listWFinal = new ArrayList<>();
 
         for (Match m : listW) {
-            System.out.println(m.getText());
-            TimeUnit.SECONDS.sleep(1);
-            screen.click(m);
-            //screen.newRegion(x, y, w, h).click(m);
-            TimeUnit.SECONDS.sleep(2);
-            List<Match> border = screen.findAllList(redbar);
-            TimeUnit.SECONDS.sleep(2);
-            //screen.newRegion(border.get(0).getX() + border.get(0).getW(), border.get(0).getY(),border.get(1).getX() - border.get(0).getX(),border.get(0).getH()).highlight();
-            Region s = new Screen().newRegion(border.get(0).getX() + border.get(0).getW(), border.get(0).getY(), border.get(1).getX() - border.get(0).getX(), border.get(0).getH());
-            TimeUnit.SECONDS.sleep(4);
-            //List<Match> folderlist = s.highlight(1).findAllList(folder);
-            List<Match> folderlist = s.findAllList(folder);
-            TimeUnit.SECONDS.sleep(4);
-
-            Assertions.assertEquals(5, folderlist.size());
-
-            TimeUnit.SECONDS.sleep(1);
+            //System.out.println(m.getText());
+            if (correctLines.contains(m.getText())) {
+                //System.out.println(m.getText());
+                listWFinal.add(m);
+            }
         }
-    }*/
+
+        for (Match m : listWFinal) {
+            System.out.println(m.getText());
+            screen.click(m);
+            List<Match> border = screen.findAllList(redbar.resize(0.8F));
+
+            if(border.get(0).getX() >  border.get(1).getX()){
+                Region s = new Screen().newRegion(border.get(1).getX() + border.get(1).getW(), border.get(1).getY(), border.get(0).getX() - border.get(1).getX(), border.get(1).getH());
+                s.highlight(0.5);
+                List<Match> folderlist = s.findAllList(folder);
+                Assertions.assertEquals(5, folderlist.size());
+            }
+            else {
+                Region s = new Screen().newRegion(border.get(0).getX() + border.get(0).getW(), border.get(0).getY(), border.get(1).getX() - border.get(0).getX(), border.get(0).getH());
+                s.highlight(0.5);
+                List<Match> folderlist = s.findAllList(folder);
+                Assertions.assertEquals(5, folderlist.size());
+            }
+/*            screen.mouseMove(border.get(0));
+            screen.mouseMove(border.get(1));*/
+        }
+    }
 }
