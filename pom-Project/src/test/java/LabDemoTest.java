@@ -100,12 +100,12 @@ public class LabDemoTest {
         for (Pattern i : imgs) {
             screen.wait(i.similar(0.9), 2).click();
             for (Pattern i2 : imgs) {
-                System.out.println(screen.exists(i2.similar(0.97), 2));
+                //System.out.println(screen.exists(i2.similar(0.97), 2));
                 Assertions.assertNotNull(screen.exists(i2.similar(0.97), 2));
             }
         }
 
-        // Solution solution 2
+        // Solution 2
         //for (Pattern i : imgs) {
         //    screen.wait(i.similar(0.9), 2).click();
         //    System.out.println(screen.exists(threeButtons.exact(), 2));
@@ -244,8 +244,6 @@ public class LabDemoTest {
     @Test
     void test_folder() throws InterruptedException, FindFailed {
 
-        TimeUnit.SECONDS.sleep(5);
-
         ImagePath.setBundlePath("./src/main/resources/test_folder");
 
         Pattern redFolder = new Pattern("redFolder");
@@ -256,10 +254,17 @@ public class LabDemoTest {
 
         List<Match> listW = screen.findAllList(appFolder);
         Match redFoldPos = screen.find(redFolder);
+
+        int count = 0;
         for (Match m : listW) {
             screen.dragDrop(m, redFoldPos);
+             if(count == 2){
+                List<Match> listApp = screen.findAllList(appFolder);
+                Assertions.assertEquals(listApp.size(), listW.size()-2);
+                break;
+             }
+            count = count + 1;
         }
-        Assertions.assertNull(screen.exists(appFolder));
     }
 
     /**
@@ -275,35 +280,47 @@ public class LabDemoTest {
      * This test should pass.
      */
 
-    @Test
+/*    @Test
     void test_resizer() throws InterruptedException, FindFailed {
-
-        TimeUnit.SECONDS.sleep(5);
 
         ImagePath.setBundlePath("./src/main/resources/test_resizer");
 
         Pattern redbar = new Pattern("redbar");
         Pattern desktext = new Pattern("desk_table_mobile");
         Pattern folder = new Pattern("folder");
+        Pattern desktop = new Pattern("desktop").similar(0.7);
+        Pattern mobile = new Pattern("mobile").similar(0.7);
+        Pattern tablet = new Pattern("table").similar(0.7);
+        Pattern region = new Pattern("region").similar(0.7);
 
+        screen.find(region).highlight(1);
+        List<Pattern> images = Arrays.asList(desktop, mobile, tablet);
         // Find text "Resizer" and click on it
         screen.findText("Resizer").click();
+        screen.wait(desktop.similar(0.7), 2).click();
+        //screen.find("desktop").click();
+        //screen.find("mobile").click();
+        //screen.find("tablet").click();
 
-        int x = screen.find(desktext).getX();
-        int y = screen.find(desktext).getY();
-        int w = screen.find(desktext).getW();
-        int h = screen.find(desktext).getH();
-
+//        int x = screen.find(desktext).getX();
+//        int y = screen.find(desktext).getY();
+//        int w = screen.find(desktext).getW();
+//        int h = screen.find(desktext).getH();
         List<Match> listW = new ArrayList<>();
 
-        listW.add(screen.newRegion(x, y, w, h).findText("Desktop"));
+        listW.add(screen.findText("Desktop"));
+        listW.add(screen.findText("Tablet"));
+        listW.add(screen.findText("Mobile"));
+
+*//*        listW.add(screen.newRegion(x, y, w, h).findText("Desktop"));
         listW.add(screen.newRegion(x, y, w, h).findText("Tablet"));
-        listW.add(screen.newRegion(x, y, w, h).findText("Mobile"));
+        listW.add(screen.newRegion(x, y, w, h).findText("Mobile"));*//*
 
         for (Match m : listW) {
             System.out.println(m.getText());
             TimeUnit.SECONDS.sleep(1);
-            screen.newRegion(x, y, w, h).click(m);
+            screen.click(m);
+            //screen.newRegion(x, y, w, h).click(m);
             TimeUnit.SECONDS.sleep(2);
             List<Match> border = screen.findAllList(redbar);
             TimeUnit.SECONDS.sleep(2);
@@ -318,5 +335,5 @@ public class LabDemoTest {
 
             TimeUnit.SECONDS.sleep(1);
         }
-    }
+    }*/
 }
