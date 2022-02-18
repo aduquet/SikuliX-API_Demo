@@ -41,7 +41,7 @@ public class LabDemoTest {
      */
 
     @Test
-    void test_button_text() throws FindFailed, InterruptedException {
+    void test_button_text() throws FindFailed {
 
         // Define the location, where the images will be searched for
         ImagePath.setBundlePath("./src/main/resources/test_button");
@@ -93,7 +93,6 @@ public class LabDemoTest {
         Pattern green = new Pattern("green");
         Pattern red = new Pattern("red");
         Pattern pink = new Pattern("pink");
-        Pattern threeButtons = new Pattern("threeButtons").similar(0.5);
 
         List<Pattern> imgs = Arrays.asList(green, red, pink);
 
@@ -105,14 +104,14 @@ public class LabDemoTest {
             }
         }
 
-        // Solution 2
-        //for (Pattern i : imgs) {
-        //    screen.wait(i.similar(0.9), 2).click();
-        //    System.out.println(screen.exists(threeButtons.exact(), 2));
-        //    Assertions.assertNotNull(screen.exists(threeButtons.exact(), 2));
-        //}
+/*      Solution 2
+        Pattern threeButtons = new Pattern("threeButtons").similar(0.5);
+        for (Pattern i : imgs) {
+            screen.wait(i.similar(0.9), 2).click();
+            System.out.println(screen.exists(threeButtons.exact(), 2));
+            Assertions.assertNotNull(screen.exists(threeButtons.exact(), 2));
+        }*/
     }
-
 
     /**
      * Tab 2 (Editor):
@@ -232,7 +231,7 @@ public class LabDemoTest {
      */
 
     @Test
-    void test_folder() throws InterruptedException, FindFailed {
+    void test_folder() throws FindFailed {
 
         ImagePath.setBundlePath("./src/main/resources/test_folder");
 
