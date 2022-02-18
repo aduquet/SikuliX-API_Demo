@@ -41,7 +41,7 @@ public class LabDemoTest {
      */
 
     @Test
-    void test_button_text() throws FindFailed {
+    void test_button_text() throws FindFailed, InterruptedException {
 
         // Define the location, where the images will be searched for
         ImagePath.setBundlePath("./src/main/resources/test_button");
@@ -51,21 +51,28 @@ public class LabDemoTest {
         Pattern pink = new Pattern("pink");
         Pattern regionText = new Pattern("regionWithText");
 
+        int x = screen.find(regionText).getX();
+        int y = screen.find(regionText).getY();
+        int w = screen.find(regionText).getW();
+        int h = screen.find(regionText).getH();
+
+        // Create a new region
+        Region newReg = new Screen().newRegion(x , y, w, h);
+        // show the new screen
+        newReg.highlight(1);
+        // List of the correct lines, i.e., the lines that should appear after the click action
         List<String> correctLines = Arrays.asList("Green button was clicked!", "Red button was clicked!", "Pink button was clicked!");
-        List<Pattern> imgs = Arrays.asList(green, red, pink);
+        // List with all the patterns (images) that the test will need to click
+        List<Pattern> images = Arrays.asList(green, red, pink);
 
         int count = 0;
-        for (Pattern i : imgs) {
-            screen.wait(i.similar(0.9), 2).click();
-            String text = screen.find(regionText).text();
-            System.out.println(text);
-            System.out.println(correctLines.get(count));
+        for (Pattern i : images) {
+            newReg.wait(i.similar(0.9), 2).click();
+            String text = newReg.text();
             Assertions.assertEquals(correctLines.get(count), text);
             count = count + 1;
         }
-
     }
-
 
     /**
      * Tab 1 (Buttons):
@@ -86,15 +93,24 @@ public class LabDemoTest {
         Pattern green = new Pattern("green");
         Pattern red = new Pattern("red");
         Pattern pink = new Pattern("pink");
+        Pattern threeButtons = new Pattern("threeButtons").similar(0.5);
 
         List<Pattern> imgs = Arrays.asList(green, red, pink);
-        Pattern threeButtons = new Pattern("threeButtons");
 
         for (Pattern i : imgs) {
             screen.wait(i.similar(0.9), 2).click();
-            System.out.println(screen.exists(threeButtons.exact(), 2));
-            Assertions.assertNotNull(screen.exists(threeButtons.exact(), 2));
+            for (Pattern i2 : imgs) {
+                System.out.println(screen.exists(i2.similar(0.97), 2));
+                Assertions.assertNotNull(screen.exists(i2.similar(0.97), 2));
+            }
         }
+
+        // Solution solution 2
+        //for (Pattern i : imgs) {
+        //    screen.wait(i.similar(0.9), 2).click();
+        //    System.out.println(screen.exists(threeButtons.exact(), 2));
+        //    Assertions.assertNotNull(screen.exists(threeButtons.exact(), 2));
+        //}
     }
 
 
@@ -116,11 +132,15 @@ public class LabDemoTest {
         // Specify the folder where the images for the test are located
         ImagePath.setBundlePath("./src/main/resources/test_editor");
 
-        Pattern first = new Pattern("first").similar(0.7);
+        Pattern reg = new Pattern("region");
+
+        int x = screen.find(reg).getX();
+        int y = screen.find(reg).getY();
+        int w = screen.find(reg).getW();
+        int h = screen.find(reg).getH();
 
         // Create a new region
-        // The method .get() returns the location of the pattern
-        Region newReg = new Screen().newRegion(screen.find(first).getX() , screen.find(first).getY(), screen.find(first).getW(), screen.find(first).getH());
+        Region newReg = new Screen().newRegion(x , y, w, h);
 
         // Find text "Editor" and click on it
         newReg.findText("Editor").click();
@@ -172,7 +192,7 @@ public class LabDemoTest {
         Pattern reg = new Pattern("region");
         Pattern copy = new Pattern("copy").similar(0.7);
 
-        TimeUnit.SECONDS.sleep(2);
+        TimeUnit.SECONDS.sleep(1);
 
         int x = screen.find(reg).getX();
         int y = screen.find(reg).getY();
@@ -239,9 +259,7 @@ public class LabDemoTest {
         for (Match m : listW) {
             screen.dragDrop(m, redFoldPos);
         }
-
         Assertions.assertNull(screen.exists(appFolder));
-
     }
 
     /**
