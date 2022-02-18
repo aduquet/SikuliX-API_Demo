@@ -132,42 +132,32 @@ public class LabDemoTest {
         // Specify the folder where the images for the test are located
         ImagePath.setBundlePath("./src/main/resources/test_editor");
 
-        Pattern reg = new Pattern("region");
-
-        int x = screen.find(reg).getX();
-        int y = screen.find(reg).getY();
-        int w = screen.find(reg).getW();
-        int h = screen.find(reg).getH();
-
-        // Create a new region
-        Region newReg = new Screen().newRegion(x , y, w, h);
-
         // Find text "Editor" and click on it
-        newReg.findText("Editor").click();
+        screen.findText("Editor").click();
 
         // Create patterns for pane closed and pane open
         Pattern firstPaneClosed = new Pattern("firstPaneClosed");
         Pattern firstPaneOpen = new Pattern("firstPaneOpen");
 
         // Determine whether the tab is closed or open
-        if (newReg.exists(firstPaneClosed.similar(0.8)) != null) {
+        if (screen.exists(firstPaneClosed.similar(0.8)) != null) {
             // If the pane was closed then click on it to open the pane
             // Wait for Sikuli to find the place similar to the picture of closed pane and click on it to open it
-            newReg.wait(firstPaneClosed.similar(0.8), 2).click();
+            screen.wait(firstPaneClosed.similar(0.8), 2).click();
         }
 
         // Wait for Sikuli to find the text box and click on it to activate the writing functionality
-        newReg.wait(new Pattern("textField").similar(0.9), 2).click();
+        screen.wait(new Pattern("textField").similar(0.9), 2).click();
         // Write text to the text box
-        newReg.write("Tere! Hi! Hola!" + Key.ENTER + "Go little Rock Star!");
+        screen.write("Tere! Hi! Hola!" + Key.ENTER + "Go little Rock Star!");
         // Wait for Sikuli to find the place similar to the picture of pane named "First" and click on it to close
-        newReg.wait(firstPaneOpen.similar(0.8), 2).click();
+        screen.wait(firstPaneOpen.similar(0.8), 2).click();
         // Click on the same place on the screen to open the tab again
-        newReg.click();
+        screen.click();
 
         // Assert if the written lines are present on the screen
-        Assertions.assertNotNull(newReg.existsText("Tere! Hi! Hola!", 2));
-        Assertions.assertNotNull(newReg.existsText("Go little Rock Star!", 2));
+        Assertions.assertNotNull(screen.existsText("Tere! Hi! Hola!", 2));
+        Assertions.assertNotNull(screen.existsText("Go little Rock Star!", 2));
     }
 
     /**
